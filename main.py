@@ -7,11 +7,11 @@ import io
 st.set_page_config(page_title="Wikipedia Chatbot", page_icon="📚")
 st.title("📚 Wikipedia Chatbot with Voice Output")
 
-# Session state for chat history
+# Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Wikipedia summary function
+# Function to fetch summary from Wikipedia
 def get_wikipedia_summary(query):
     try:
         results = wikipedia.search(query)
@@ -26,7 +26,7 @@ def get_wikipedia_summary(query):
     except Exception:
         return "Oops, something went wrong."
 
-# Convert text to audio
+# Function to convert text to speech
 def text_to_speech(text):
     tts = gTTS(text=text, lang='en')
     mp3_fp = io.BytesIO()
@@ -42,11 +42,12 @@ if user_input:
     bot_reply = get_wikipedia_summary(user_input)
     st.session_state.messages.append({"role": "bot", "content": bot_reply})
 
-# Display messages + voice
-for msg in st.session_state.messages:
+# Display messages and play voice on button click
+for i, msg in enumerate(st.session_state.messages):
     if msg["role"] == "user":
         st.markdown(f"**You:** {msg['content']}")
     else:
         st.markdown(f"**Bot:** {msg['content']}")
-        audio_data = text_to_speech(msg["content"])
-        st.audio(audio_data, format="audio/mp3")
+        if st.button("🔊 Play Voice", key=f"voice_{i}"):
+            audio_data = text_to_speech(msg["content"])
+            st.audio(audio_data, format="audio/mp3")
